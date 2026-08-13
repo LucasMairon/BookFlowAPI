@@ -5,10 +5,13 @@ from ..utils.search_books import get_cleaned_books_list
 
 load_dotenv()
 
-book_router = APIRouter()
+book_router = APIRouter(
+    prefix='/books',
+    tags=['books']
+)
 
 
-@book_router.get('/search')
+@book_router.get('/')
 async def list_books(search_term: str | None = None):
     search_url = f'{os.getenv("BOOK_API_SEARCH_URL")}search.json'
 
