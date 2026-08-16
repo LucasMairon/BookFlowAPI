@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from .routes.book import book_router
 
 app = FastAPI(

@@ -1,4 +1,5 @@
 import sqlalchemy as sa
+
 from .db_config import Base
 
 
