@@ -92,3 +92,29 @@ def delete_book(book_id: int, session: Session = Depends(get_session)):
         )
     session.delete(book)
     session.commit()
+
+
+@book_router.put(
+    path='/{book_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=BookPublic
+)
+def update_book(
+    book_id: int,
+    book: BookSchema,
+    session: Session = Depends(get_session)
+):
+    db_book = session.get(Book, book_id)
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Book not found'
+        )
+
+    for field, value in book.model_dump().items():
+        setattr(db_book, field, value)
+        session.commit()
+        session.refresh(db_book)
+
+    return db_book
