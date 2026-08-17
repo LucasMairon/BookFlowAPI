@@ -12,3 +12,7 @@ class BookPublic(BaseModel):
     title: str
     author: str
     cover_url: str
+
+
+class BookList(BaseModel):
+    books: list[BookPublic]
