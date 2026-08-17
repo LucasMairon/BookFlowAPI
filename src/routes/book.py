@@ -2,11 +2,12 @@ import os
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.book import Book
 from src.models.db_config import get_session
-from src.schemas.book import BookPublic, BookSchema
+from src.schemas.book import BookList, BookPublic, BookSchema
 
 from ..utils.search_books import get_cleaned_books_list
 
@@ -18,8 +19,8 @@ book_router = APIRouter(
 )
 
 
-@book_router.get('/')
-async def list_books(search_term: str | None = None):
+@book_router.get('{search_term}')
+async def book_search(search_term: str | None = None):
     search_url = f'{os.getenv("BOOK_API_SEARCH_URL")}search.json'
 
     if search_term is not None:
@@ -46,3 +47,15 @@ def book_create(book: BookSchema, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(book)
     return book
+
+
+@book_router.get(
+    path='/',
+    response_model=BookList,
+    status_code=status.HTTP_200_OK
+)
+def book_list(session: Session = Depends(get_session)):
+    query = session.scalars(select(Book))
+    books = query.all()
+
+    return {'books': books}
