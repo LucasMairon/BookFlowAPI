@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -59,3 +59,20 @@ def book_list(session: Session = Depends(get_session), offsett: int = 0, limit: 
     books = query.all()
 
     return {'books': books}
+
+
+@book_router.get(
+    path='/{book_id}',
+    response_model=BookPublic,
+    status_code=status.HTTP_200_OK
+)
+def get_book(book_id: int, session: Session = Depends(get_session)):
+    book = session.get(Book, book_id)
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Book not found',
+        )
+
+    return book
