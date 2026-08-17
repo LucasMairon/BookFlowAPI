@@ -54,8 +54,8 @@ def book_create(book: BookSchema, session: Session = Depends(get_session)):
     response_model=BookList,
     status_code=status.HTTP_200_OK
 )
-def book_list(session: Session = Depends(get_session)):
-    query = session.scalars(select(Book))
+def book_list(session: Session = Depends(get_session), offsett: int = 0, limit: int = 30):
+    query = session.scalars(select(Book).offset(offsett).limit(limit))
     books = query.all()
 
     return {'books': books}
