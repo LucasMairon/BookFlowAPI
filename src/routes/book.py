@@ -1,9 +1,12 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter
-
+from fastapi import APIRouter, status, Depends
+from src.schemas.book import BookSchema, BookPublic
 from ..utils.search_books import get_cleaned_books_list
+from sqlalchemy.orm import Session
+from src.models.db_config import get_session
+from src.models.book import Book
 
 load_dotenv()
 
@@ -28,3 +31,16 @@ async def list_books(search_term: str | None = None):
     books = get_cleaned_books_list(search_url, url_params)
 
     return {"listed_books": books}
+
+
+@book_router.post(
+    path='/',
+    response_model=BookPublic,
+    status_code=status.HTTP_201_CREATED,
+)
+def book_create(book: BookSchema, session: Session = Depends(get_session)):
+    book = Book(**book.model_dump())
+    session.add(book)
+    session.commit()
+    session.refresh(book)
+    return book
