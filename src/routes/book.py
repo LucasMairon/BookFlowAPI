@@ -76,3 +76,19 @@ def get_book(book_id: int, session: Session = Depends(get_session)):
         )
 
     return book
+
+
+@book_router.delete(
+    path='/delete/{book_id}',
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_book(book_id: int, session: Session = Depends(get_session)):
+    book = session.get(Book, book_id)
+
+    if not book:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Book not found'
+        )
+    session.delete(book)
+    session.commit()
