@@ -1,12 +1,14 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, status, Depends
-from src.schemas.book import BookSchema, BookPublic
-from ..utils.search_books import get_cleaned_books_list
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from src.models.db_config import get_session
+
 from src.models.book import Book
+from src.models.db_config import get_session
+from src.schemas.book import BookPublic, BookSchema
+
+from ..utils.search_books import get_cleaned_books_list
 
 load_dotenv()
 
