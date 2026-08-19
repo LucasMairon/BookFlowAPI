@@ -1,6 +1,3 @@
-import os
-
-from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,7 +8,7 @@ from src.schemas.book import BookList, BookPublic, BookSchema
 
 from ..utils.search_books import get_cleaned_books_list
 
-load_dotenv()
+BOOK_API_SEARCH_URL = "https://openlibrary.org/"
 
 book_router = APIRouter(
     prefix='/books',
@@ -19,21 +16,27 @@ book_router = APIRouter(
 )
 
 
-@book_router.get('{search_term}')
-async def book_search(search_term: str | None = None):
-    search_url = f'{os.getenv("BOOK_API_SEARCH_URL")}search.json'
+@book_router.get(
+    path='{search_term}',
+    status_code=status.HTTP_200_OK,
+)
+def book_search(search_term: str | None = None, page: str | None = None):
+    search_url = f'{BOOK_API_SEARCH_URL}search.json'
 
     if search_term is not None:
         clean_search_term = search_term.replace(" ", "+")
         url_params = {
             'q': clean_search_term,
-            'fields': '*',
+            'fields': ['author_name', 'cover_i', 'title', 'edit_count'],
             'lang': 'pt-BR',
+            'offset': 0,
+            'limit': 30,
+            'page': page,
         }
 
     books = get_cleaned_books_list(search_url, url_params)
 
-    return {"listed_books": books}
+    return books
 
 
 @book_router.post(
