@@ -1,10 +1,11 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.book import Book
 from src.models.db_config import get_session
-from src.schemas.book import BookList, BookPublic, BookSchema
+from src.schemas.book import BookPublic, BookSchema
 
 from ..utils.search_books import get_cleaned_books_list
 
@@ -17,22 +18,24 @@ book_router = APIRouter(
 
 
 @book_router.get(
-    path='{search_term}',
+    path='/',
     status_code=status.HTTP_200_OK,
 )
-def book_search(search_term: str | None = None, page: str | None = None):
-    search_url = f'{BOOK_API_SEARCH_URL}search.json'
+def book_search(search_term: Optional[str] = None, page: Optional[int] = 1):
+    url_params = {
+        'fields': ['author_name', 'cover_i', 'title', 'edit_count'],
+        'lang': 'pt-BR',
+        'offset': 0,
+        'limit': 30,
+        'page': page,
+    }
 
     if search_term is not None:
         clean_search_term = search_term.replace(" ", "+")
-        url_params = {
-            'q': clean_search_term,
-            'fields': ['author_name', 'cover_i', 'title', 'edit_count'],
-            'lang': 'pt-BR',
-            'offset': 0,
-            'limit': 30,
-            'page': page,
-        }
+        url_params['q'] = clean_search_term
+        search_url = f'{BOOK_API_SEARCH_URL}search.json'
+    else:
+        search_url = f'{BOOK_API_SEARCH_URL}trending/weekly.json'
 
     books = get_cleaned_books_list(search_url, url_params)
 
@@ -50,18 +53,6 @@ def book_create(book: BookSchema, session: Session = Depends(get_session)):
     session.commit()
     session.refresh(book)
     return book
-
-
-@book_router.get(
-    path='/',
-    response_model=BookList,
-    status_code=status.HTTP_200_OK
-)
-def book_list(session: Session = Depends(get_session), offsett: int = 0, limit: int = 30):
-    query = session.scalars(select(Book).offset(offsett).limit(limit))
-    books = query.all()
-
-    return {'books': books}
 
 
 @book_router.get(
