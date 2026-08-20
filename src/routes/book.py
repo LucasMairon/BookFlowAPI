@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.models.book import Book
 from src.models.db_config import get_session
-from src.schemas.book import BookPublic, BookSchema
+from src.schemas.book import BookPublic, BookSchema, BookPartialUpdate
 
 from ..utils.search_books import get_cleaned_books_list
 from src.utils.book import get_book_or_http_exception
@@ -93,5 +93,27 @@ def update_book(
         setattr(db_book, field, value)
         session.commit()
         session.refresh(db_book)
+
+    return db_book
+
+
+@book_router.patch(
+    path='/{book_id}',
+    status_code=status.HTTP_201_CREATED,
+    response_model=BookPublic,
+)
+def partial_update_book(
+    book_id: int,
+    book: BookPartialUpdate,
+    session: Session = Depends(get_session)
+):
+    db_book = get_book_or_http_exception(session, book_id)
+
+    updated_data = {key: value for key,
+                    value in book.model_dump(exclude_unset=True).items()}
+    for field, value in updated_data.items():
+        setattr(db_book, field, value)
+    session.commit()
+    session.refresh(db_book)
 
     return db_book
