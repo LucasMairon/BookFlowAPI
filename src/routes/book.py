@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.models.book import Book
@@ -8,6 +8,7 @@ from src.models.db_config import get_session
 from src.schemas.book import BookPublic, BookSchema
 
 from ..utils.search_books import get_cleaned_books_list
+from src.utils.book import get_book_or_http_exception
 
 BOOK_API_SEARCH_URL = "https://openlibrary.org/"
 
@@ -61,13 +62,7 @@ def book_create(book: BookSchema, session: Session = Depends(get_session)):
     status_code=status.HTTP_200_OK
 )
 def get_book(book_id: int, session: Session = Depends(get_session)):
-    book = session.get(Book, book_id)
-
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Book not found',
-        )
+    book = get_book_or_http_exception(session, book_id)
 
     return book
 
@@ -77,13 +72,7 @@ def get_book(book_id: int, session: Session = Depends(get_session)):
     status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_book(book_id: int, session: Session = Depends(get_session)):
-    book = session.get(Book, book_id)
-
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Book not found'
-        )
+    book = get_book_or_http_exception(session, book_id)
     session.delete(book)
     session.commit()
 
@@ -98,13 +87,7 @@ def update_book(
     book: BookSchema,
     session: Session = Depends(get_session)
 ):
-    db_book = session.get(Book, book_id)
-
-    if not book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Book not found'
-        )
+    db_book = get_book_or_http_exception(session, book_id)
 
     for field, value in book.model_dump().items():
         setattr(db_book, field, value)
