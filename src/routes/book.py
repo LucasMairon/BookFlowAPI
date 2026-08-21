@@ -19,7 +19,7 @@ book_router = APIRouter(prefix='/books', tags=['books'])
     path='/',
     status_code=status.HTTP_200_OK,
 )
-def book_search(search_term: Optional[str] = None, page: Optional[int] = 1):
+def get_books(search_term: Optional[str] = None, page: Optional[int] = 1):
     url_params = {
         'fields': ['author_name', 'cover_i', 'title', 'edit_count'],
         'lang': 'pt-BR',
@@ -45,7 +45,7 @@ def book_search(search_term: Optional[str] = None, page: Optional[int] = 1):
     response_model=BookPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def book_create(book: BookSchema, session: Session = Depends(get_session)):
+def create_book(book: BookSchema, session: Session = Depends(get_session)):
     book = Book(**book.model_dump())
     session.add(book)
     session.commit()
