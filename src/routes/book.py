@@ -5,17 +5,14 @@ from sqlalchemy.orm import Session
 
 from src.models.book import Book
 from src.models.db_config import get_session
-from src.schemas.book import BookPublic, BookSchema, BookPartialUpdate
-
-from ..utils.search_books import get_cleaned_books_list
+from src.schemas.book import BookPartialUpdate, BookPublic, BookSchema
 from src.utils.book import get_book_or_http_exception
 
-BOOK_API_SEARCH_URL = "https://openlibrary.org/"
+from ..utils.search_books import get_cleaned_books_list
 
-book_router = APIRouter(
-    prefix='/books',
-    tags=['books']
-)
+BOOK_API_SEARCH_URL = 'https://openlibrary.org/'
+
+book_router = APIRouter(prefix='/books', tags=['books'])
 
 
 @book_router.get(
@@ -32,7 +29,7 @@ def book_search(search_term: Optional[str] = None, page: Optional[int] = 1):
     }
 
     if search_term is not None:
-        clean_search_term = search_term.replace(" ", "+")
+        clean_search_term = search_term.replace(' ', '+')
         url_params['q'] = clean_search_term
         search_url = f'{BOOK_API_SEARCH_URL}search.json'
     else:
@@ -59,7 +56,7 @@ def book_create(book: BookSchema, session: Session = Depends(get_session)):
 @book_router.get(
     path='/{book_id}',
     response_model=BookPublic,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
 )
 def get_book(book_id: int, session: Session = Depends(get_session)):
     book = get_book_or_http_exception(session, book_id)
@@ -68,8 +65,7 @@ def get_book(book_id: int, session: Session = Depends(get_session)):
 
 
 @book_router.delete(
-    path='/delete/{book_id}',
-    status_code=status.HTTP_204_NO_CONTENT
+    path='/delete/{book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_book(book_id: int, session: Session = Depends(get_session)):
     book = get_book_or_http_exception(session, book_id)
@@ -80,12 +76,10 @@ def delete_book(book_id: int, session: Session = Depends(get_session)):
 @book_router.put(
     path='/{book_id}',
     status_code=status.HTTP_200_OK,
-    response_model=BookPublic
+    response_model=BookPublic,
 )
 def update_book(
-    book_id: int,
-    book: BookSchema,
-    session: Session = Depends(get_session)
+    book_id: int, book: BookSchema, session: Session = Depends(get_session)
 ):
     db_book = get_book_or_http_exception(session, book_id)
 
@@ -105,12 +99,14 @@ def update_book(
 def partial_update_book(
     book_id: int,
     book: BookPartialUpdate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
 ):
     db_book = get_book_or_http_exception(session, book_id)
 
-    updated_data = {key: value for key,
-                    value in book.model_dump(exclude_unset=True).items()}
+    updated_data = {
+        key: value
+        for key, value in book.model_dump(exclude_unset=True).items()
+    }
     for field, value in updated_data.items():
         setattr(db_book, field, value)
     session.commit()
