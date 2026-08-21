@@ -1,16 +1,16 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.book import Book
 from src.models.db_config import get_session
-from src.schemas.book import BookPartialUpdate, BookPublic, BookSchema
+from src.schemas.book import (
+    BookList,
+    BookPartialUpdate,
+    BookPublic,
+    BookSchema,
+)
 from src.utils.book import get_book_or_http_exception
-
-from ..utils.search_books import get_cleaned_books_list
-
-BOOK_API_SEARCH_URL = 'https://openlibrary.org/'
 
 book_router = APIRouter(prefix='/books', tags=['books'])
 
@@ -18,26 +18,15 @@ book_router = APIRouter(prefix='/books', tags=['books'])
 @book_router.get(
     path='/',
     status_code=status.HTTP_200_OK,
+    response_model=BookList,
 )
-def get_books(search_term: Optional[str] = None, page: Optional[int] = 1):
-    url_params = {
-        'fields': ['author_name', 'cover_i', 'title', 'edit_count'],
-        'lang': 'pt-BR',
-        'offset': 0,
-        'limit': 30,
-        'page': page,
-    }
+def list_books(
+    session: Session = Depends(get_session), offset: int = 0, limit: int = 30
+):
+    query = session.scalars(select(Book).offset(offset).limit(limit))
+    books = query.all()
 
-    if search_term is not None:
-        clean_search_term = search_term.replace(' ', '+')
-        url_params['q'] = clean_search_term
-        search_url = f'{BOOK_API_SEARCH_URL}search.json'
-    else:
-        search_url = f'{BOOK_API_SEARCH_URL}trending/weekly.json'
-
-    books = get_cleaned_books_list(search_url, url_params)
-
-    return books
+    return {'books': books}
 
 
 @book_router.post(
