@@ -30,6 +30,10 @@ select = ["I", "F", "E", "W", "PL", "PT"]
 preview = true
 quote-style = 'single'
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
 [tool.taskipy.tasks]
 lint = 'ruff check'
 lint_fix = 'ruff check --fix'
@@ -37,3 +41,9 @@ format = 'ruff format'
 run = 'uv run fastapi dev'
 makemigrations = 'alembic revision --autogenerate -m'
 migrate = 'alembic upgrade head'
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
