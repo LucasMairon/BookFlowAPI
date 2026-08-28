@@ -10,3 +10,8 @@ class UserPublic(BaseModel):
     id: int
     email: EmailStr
     is_active: bool
+
+
+class Token(BaseModel):
+    token_type: str
+    acess_token: str
