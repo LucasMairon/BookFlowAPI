@@ -36,6 +36,7 @@ def singup(user: UserSchema, session: Session = Depends(get_session)):
 @user_router.post(
     '/token',
     response_model=Token,
+    status_code=status.HTTP_200_OK
 )
 def login_for_acess_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
