@@ -2,9 +2,9 @@ import os
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
+from dotenv import load_dotenv
 from jwt import encode
 from pwdlib import PasswordHash
-from dotenv import load_dotenv
 
 pwd_context = PasswordHash.recommended()
 
