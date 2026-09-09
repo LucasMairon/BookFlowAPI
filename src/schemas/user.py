@@ -12,6 +12,5 @@ class UserPublic(BaseModel):
     is_active: bool
 
 
-class Token(BaseModel):
-    token_type: str
-    acess_token: str
+class UserList(BaseModel):
+    users: list[UserPublic]
