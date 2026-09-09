@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
 from src.models.user import User
-from src.schemas.user import UserPublic, UserSchema
+from src.schemas.user import UserPublic, UserSchema, UserList
 from src.utils.security import (
     get_password_hash,
 )
@@ -17,7 +17,7 @@ from src.utils.security import (
 load_dotenv()
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/token')
 
 user_router = APIRouter(prefix='/users', tags=['users'])
 
@@ -50,6 +50,22 @@ def get_current_user(
         raise credentials_exception
 
     return user
+
+
+@user_router.get(
+    path='/',
+    response_model=UserList,
+    status_code=status.HTTP_200_OK
+)
+def list_users(
+    session: Session = Depends(get_session),
+    offset: int = 0,
+    limit: int = 20,
+):
+    query = session.scalars(select(User).offset(offset).limit(limit))
+    users = query.all()
+
+    return {'users': users}
 
 
 @user_router.post(
