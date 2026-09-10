@@ -11,9 +11,7 @@ from src.utils.security import create_acess_token, verify_password
 token_router = APIRouter(prefix='/token', tags=['token'])
 
 
-@token_router.post(
-    '/token', response_model=Token, status_code=status.HTTP_200_OK
-)
+@token_router.post('/', response_model=Token, status_code=status.HTTP_200_OK)
 def login_for_acess_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
@@ -31,10 +29,10 @@ def login_for_acess_token(
             detail='invalid email or password',
         )
 
-    acess_token = create_acess_token({'sub': user.email})
+    access_token = create_acess_token({'sub': user.email})
 
     new_token = Token(
-        acess_token=acess_token,
+        access_token=access_token,
         token_type='Bearer',
     )
 
