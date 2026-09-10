@@ -61,6 +61,7 @@ def list_users(
     session: Session = Depends(get_session),
     offset: int = 0,
     limit: int = 20,
+    user: User = Depends(get_current_user)
 ):
     query = session.scalars(select(User).offset(offset).limit(limit))
     users = query.all()
