@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
 from src.models.user import User
-from src.schemas.user import UserPublic, UserSchema, UserList
+from src.schemas.user import UserList, UserPublic, UserSchema
 from src.utils.security import (
     get_password_hash,
 )
@@ -23,7 +23,9 @@ user_router = APIRouter(prefix='/users', tags=['users'])
 
 
 @user_router.get(
-    path='{user_id}', response_model=UserPublic, status_code=status.HTTP_200_OK
+    path='{user_id}/',
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK,
 )
 def get_current_user(
     session: Session = Depends(get_session),
@@ -53,9 +55,7 @@ def get_current_user(
 
 
 @user_router.get(
-    path='/',
-    response_model=UserList,
-    status_code=status.HTTP_200_OK
+    path='/', response_model=UserList, status_code=status.HTTP_200_OK
 )
 def list_users(
     session: Session = Depends(get_session),
