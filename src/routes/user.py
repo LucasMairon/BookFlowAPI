@@ -82,3 +82,28 @@ def singup(user: UserSchema, session: Session = Depends(get_session)):
     session.refresh(db_user)
 
     return db_user
+
+
+@user_router.delete(
+    path='/{user_id}',
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_user(
+    user_id: int,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_user = session.get(User, user_id)
+    if not user_id == user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail='Access denied. You do not have the required permissions to perform this action.'
+        )
+    elif not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found.'
+        )
+
+    session.delete(db_user)
+    session.commit()
