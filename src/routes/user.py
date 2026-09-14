@@ -61,7 +61,7 @@ def list_users(
     session: Session = Depends(get_session),
     offset: int = 0,
     limit: int = 20,
-    user: User = Depends(get_current_user)
+    user: User = Depends(get_current_user),
 ):
     query = session.scalars(select(User).offset(offset).limit(limit))
     users = query.all()
@@ -84,10 +84,7 @@ def singup(user: UserSchema, session: Session = Depends(get_session)):
     return db_user
 
 
-@user_router.delete(
-    path='/{user_id}',
-    status_code=status.HTTP_204_NO_CONTENT
-)
+@user_router.delete(path='/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: int,
     session: Session = Depends(get_session),
@@ -97,12 +94,11 @@ def delete_user(
     if not user_id == user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied. You do not have the required permissions to perform this action.'
+            detail='Access denied. You do not have the required permissions to perform this action.',
         )
     elif not db_user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='User not found.'
+            status_code=status.HTTP_404_NOT_FOUND, detail='User not found.'
         )
 
     session.delete(db_user)
