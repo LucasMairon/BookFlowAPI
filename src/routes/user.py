@@ -13,6 +13,10 @@ from src.schemas.user import UserList, UserPublic, UserSchema
 from src.utils.security import (
     get_password_hash,
 )
+from src.utils.user import (
+    verify_if_is_user_have_permission,
+    verify_if_user_exist,
+)
 
 load_dotenv()
 
@@ -91,15 +95,8 @@ def delete_user(
     user: User = Depends(get_current_user),
 ):
     db_user = session.get(User, user_id)
-    if not user_id == user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied. You do not have the required permissions to perform this action.',
-        )
-    elif not db_user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User not found.'
-        )
+    verify_if_is_user_have_permission(user_id, user.id)
+    verify_if_user_exist(db_user)
 
     session.delete(db_user)
     session.commit()
