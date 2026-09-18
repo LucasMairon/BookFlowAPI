@@ -100,3 +100,33 @@ def delete_user(
 
     session.delete(db_user)
     session.commit()
+
+
+@user_router.put(
+    path='/{user_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=UserPublic,
+)
+def update_user(
+    user_id: int,
+    user_data: UserSchema,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_user = session.get(User, user_id)
+    verify_if_is_user_have_permission(user_id, user.id)
+    verify_if_user_exist(db_user)
+
+    data_to_update = user_data.model_dump()
+
+    if 'password' in data_to_update:
+        raw_password = data_to_update.pop('password')
+        db_user.hashed_password = get_password_hash(raw_password)
+
+    for field, value in data_to_update.items():
+        setattr(db_user, field, value)
+
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
