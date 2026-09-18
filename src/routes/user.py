@@ -119,9 +119,8 @@ def update_user(
 
     data_to_update = user_data.model_dump()
 
-    if 'password' in data_to_update:
-        raw_password = data_to_update.pop('password')
-        db_user.hashed_password = get_password_hash(raw_password)
+    raw_password = data_to_update.pop('password')
+    db_user.hashed_password = get_password_hash(raw_password)
 
     for field, value in data_to_update.items():
         setattr(db_user, field, value)
