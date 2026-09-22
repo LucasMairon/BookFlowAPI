@@ -129,3 +129,34 @@ def update_user(
     session.refresh(db_user)
 
     return db_user
+
+
+@user_router.patch(
+    path='/{user_id}',
+    status_code=status.HTTP_200_OK,
+    response_model=UserPublic,
+)
+def partial_update_user(
+    user_id: int,
+    user_data: UserSchema,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_user = session.get(User, user_id)
+    verify_if_is_user_have_permission(user_id, user.id)
+    verify_if_user_exist(db_user)
+
+    data_to_update = user_data.model_dump(exclude_unset=True)
+
+    raw_password = data_to_update.pop('password')
+    db_user.hashed_password = get_password_hash(raw_password)
+
+    updated_data = {key: value for key, value in data_to_update.items()}
+
+    for field, value in updated_data.items():
+        setattr(db_user, field, value)
+
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
