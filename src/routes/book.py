@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.book import Book
+from src.models.user import User
 from src.models.db_config import get_session
 from src.schemas.book import (
     BookList,
@@ -11,6 +12,7 @@ from src.schemas.book import (
     BookSchema,
 )
 from src.utils.book import get_book_or_http_exception
+from src.routes.user import get_current_user
 
 book_router = APIRouter(prefix='/books', tags=['books'])
 
@@ -34,7 +36,7 @@ def list_books(
     response_model=BookPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def create_book(book: BookSchema, session: Session = Depends(get_session)):
+def create_book(book: BookSchema, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     book = Book(**book.model_dump())
     session.add(book)
     session.commit()
@@ -56,7 +58,7 @@ def get_book(book_id: int, session: Session = Depends(get_session)):
 @book_router.delete(
     path='/delete/{book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
-def delete_book(book_id: int, session: Session = Depends(get_session)):
+def delete_book(book_id: int, session: Session = Depends(get_session), user: User = Depends(get_current_user)):
     book = get_book_or_http_exception(session, book_id)
     session.delete(book)
     session.commit()
@@ -68,7 +70,7 @@ def delete_book(book_id: int, session: Session = Depends(get_session)):
     response_model=BookPublic,
 )
 def update_book(
-    book_id: int, book: BookSchema, session: Session = Depends(get_session)
+    book_id: int, book: BookSchema, session: Session = Depends(get_session), user: User = Depends(get_current_user)
 ):
     db_book = get_book_or_http_exception(session, book_id)
 
@@ -89,6 +91,7 @@ def partial_update_book(
     book_id: int,
     book: BookPartialUpdate,
     session: Session = Depends(get_session),
+    user: User = Depends(get_current_user)
 ):
     db_book = get_book_or_http_exception(session, book_id)
 
