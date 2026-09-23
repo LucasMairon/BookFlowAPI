@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 
@@ -14,3 +16,8 @@ class UserPublic(BaseModel):
 
 class UserList(BaseModel):
     users: list[UserPublic]
+
+
+class UserPartialUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
