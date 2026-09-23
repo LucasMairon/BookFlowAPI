@@ -9,7 +9,12 @@ from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
 from src.models.user import User
-from src.schemas.user import UserList, UserPublic, UserSchema
+from src.schemas.user import (
+    UserList,
+    UserPartialUpdate,
+    UserPublic,
+    UserSchema,
+)
 from src.utils.security import (
     get_password_hash,
 )
@@ -138,7 +143,7 @@ def update_user(
 )
 def partial_update_user(
     user_id: int,
-    user_data: UserSchema,
+    user_data: UserPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -148,8 +153,9 @@ def partial_update_user(
 
     data_to_update = user_data.model_dump(exclude_unset=True)
 
-    raw_password = data_to_update.pop('password')
-    db_user.hashed_password = get_password_hash(raw_password)
+    if 'password' in data_to_update:
+        raw_password = data_to_update.pop('password')
+        db_user.hashed_password = get_password_hash(raw_password)
 
     updated_data = {key: value for key, value in data_to_update.items()}
 
