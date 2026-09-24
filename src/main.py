@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from src.routes.book import book_router
 from src.routes.token import token_router
 from src.routes.user import user_router
+from src.routes.user_book import user_book_router
 
 app = FastAPI(
     title='BookFlow API',
@@ -11,4 +12,5 @@ app = FastAPI(
 
 app.include_router(user_router)
 app.include_router(book_router)
+app.include_router(user_book_router)
 app.include_router(token_router)
