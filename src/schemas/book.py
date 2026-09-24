@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BookSchema(BaseModel):
@@ -14,6 +14,8 @@ class BookPublic(BaseModel):
     title: str
     author: str
     cover_url: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BookPartialUpdate(BaseModel):
