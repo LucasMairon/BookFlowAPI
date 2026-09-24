@@ -1,6 +1,7 @@
 import enum
 
 import sqlalchemy as sa
+from sqlalchemy.orm import relationship
 
 from src.models.db_config import Base
 
@@ -23,3 +24,5 @@ class UserBook(Base):
         nullable=False,
     )
     book_id = sa.Column(sa.Integer, sa.ForeignKey('books.id'), nullable=False)
+    user = relationship('User')
+    book = relationship('Book')
