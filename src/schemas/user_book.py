@@ -18,3 +18,15 @@ class UserBookPublic(BaseModel):
     book: BookPublic
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class UserBookItensPublic(BaseModel):
+    id: int
+    status: StatusChoices
+    book: BookPublic
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserBookList(BaseModel):
+    user_books: list[UserBookItensPublic]
