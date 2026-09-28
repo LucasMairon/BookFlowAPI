@@ -11,6 +11,10 @@ class UserBookSchema(BaseModel):
     book_id: int
 
 
+class UserBookUpdateSchema(BaseModel):
+    status: StatusChoices
+
+
 class UserBookPublic(BaseModel):
     id: int
     status: StatusChoices
