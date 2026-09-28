@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
 from src.models.user_book import StatusChoices
@@ -13,6 +15,10 @@ class UserBookSchema(BaseModel):
 
 class UserBookUpdateSchema(BaseModel):
     status: StatusChoices
+
+
+class UserBookPartialUpdateSchema(BaseModel):
+    status: Optional[StatusChoices]
 
 
 class UserBookPublic(BaseModel):
