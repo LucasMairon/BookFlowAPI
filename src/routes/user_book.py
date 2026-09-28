@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -6,9 +6,16 @@ from src.models.db_config import get_session
 from src.models.user import User
 from src.models.user_book import UserBook
 from src.routes.user import get_current_user
-from src.schemas.user_book import UserBookList, UserBookPublic, UserBookSchema
+from src.schemas.user_book import (
+    UserBookItensPublic,
+    UserBookList,
+    UserBookPublic,
+    UserBookSchema,
+    UserBookUpdateSchema,
+)
 from src.utils.book import get_book_or_http_exception
 from src.utils.user import verify_if_is_user_have_permission
+from src.utils.user_book import get_user_book_or_http_404
 
 user_book_router = APIRouter(prefix='/user_books', tags=['user_books'])
 
@@ -36,7 +43,7 @@ def create_user_book(
 
 
 @user_book_router.get(
-    '/', response_model=UserBookList, status_code=status.HTTP_200_OK
+    path='/', response_model=UserBookList, status_code=status.HTTP_200_OK
 )
 def get_user_books_by_logged_user(
     session: Session = Depends(get_session),
@@ -49,20 +56,38 @@ def get_user_books_by_logged_user(
 
 
 @user_book_router.delete(
-    '/{user_book_id}', status_code=status.HTTP_204_NO_CONTENT
+    path='/{user_book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_user_book(
     user_book_id: int,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user_book = session.get(UserBook, user_book_id)
+    db_user_book = get_user_book_or_http_404(session, user_book_id)
     verify_if_is_user_have_permission(db_user_book.user_id, user.id)
-
-    if not db_user_book:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='user_book not found'
-        )
 
     session.delete(db_user_book)
     session.commit()
+
+
+@user_book_router.put(
+    path='/{user_book_id}',
+    response_model=UserBookItensPublic,
+    status_code=status.HTTP_200_OK,
+)
+def update_user_book(
+    user_book_id: int,
+    user_book_data: UserBookUpdateSchema,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_user_book = get_user_book_or_http_404(session, user_book_id)
+    verify_if_is_user_have_permission(db_user_book.user_id, user.id)
+
+    for field, value in user_book_data.model_dump().items():
+        setattr(db_user_book, field, value)
+
+    session.commit()
+    session.refresh(db_user_book)
+
+    return db_user_book
