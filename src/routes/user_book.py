@@ -9,6 +9,7 @@ from src.routes.user import get_current_user
 from src.schemas.user_book import (
     UserBookItensPublic,
     UserBookList,
+    UserBookPartialUpdateSchema,
     UserBookPublic,
     UserBookSchema,
     UserBookUpdateSchema,
@@ -87,6 +88,33 @@ def update_user_book(
     for field, value in user_book_data.model_dump().items():
         setattr(db_user_book, field, value)
 
+    session.commit()
+    session.refresh(db_user_book)
+
+    return db_user_book
+
+
+@user_book_router.patch(
+    path='/{user_book_id}',
+    response_model=UserBookItensPublic,
+    status_code=status.HTTP_200_OK,
+)
+def partial_update_user_book(
+    user_book_id: int,
+    user_book_data: UserBookPartialUpdateSchema,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_user),
+):
+    db_user_book = get_user_book_or_http_404(session, user_book_id)
+    verify_if_is_user_have_permission(db_user_book.user_id, user.id)
+
+    updated_data = {
+        key: value
+        for key, value in user_book_data.model_dump(exclude_unset=True).items()
+    }
+
+    for field, value in updated_data.items():
+        setattr(db_user_book, field, value)
     session.commit()
     session.refresh(db_user_book)
 
