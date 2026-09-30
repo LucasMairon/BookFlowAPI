@@ -5,7 +5,10 @@ def verify_if_is_user_have_permission(param_user_id, user_id):
     if not param_user_id == user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail='Access denied. You do not have the required permissions to perform this action.',
+            detail=(
+                'Access denied. You do not have the '
+                'required permissions to perform this action.'
+            )
         )
 
 
