@@ -8,7 +8,7 @@ def verify_if_is_user_have_permission(param_user_id, user_id):
             detail=(
                 'Access denied. You do not have the '
                 'required permissions to perform this action.'
-            )
+            ),
         )
 
 

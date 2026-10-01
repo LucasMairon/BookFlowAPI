@@ -1,5 +1,6 @@
-import sqlalchemy as sa
 import uuid
+
+import sqlalchemy as sa
 
 from src.models.db_config import Base
 

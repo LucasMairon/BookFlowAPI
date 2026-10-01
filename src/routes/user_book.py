@@ -1,7 +1,8 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from uuid import UUID
 
 from src.models.db_config import get_session
 from src.models.user import User
