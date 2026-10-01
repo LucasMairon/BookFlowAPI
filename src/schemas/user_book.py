@@ -1,6 +1,7 @@
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
+from uuid import UUID
 
 from src.models.user_book import StatusChoices
 from src.schemas.book import BookPublic
@@ -9,8 +10,8 @@ from src.schemas.user import UserPublic
 
 class UserBookSchema(BaseModel):
     status: StatusChoices
-    user_id: int
-    book_id: int
+    user_id: UUID
+    book_id: UUID
 
 
 class UserBookUpdateSchema(BaseModel):
@@ -22,7 +23,7 @@ class UserBookPartialUpdateSchema(BaseModel):
 
 
 class UserBookPublic(BaseModel):
-    id: int
+    id: UUID
     status: StatusChoices
     user: UserPublic
     book: BookPublic
@@ -31,7 +32,7 @@ class UserBookPublic(BaseModel):
 
 
 class UserBookItensPublic(BaseModel):
-    id: int
+    id: UUID
     status: StatusChoices
     book: BookPublic
 

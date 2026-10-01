@@ -1,4 +1,5 @@
 import enum
+import uuid
 
 import sqlalchemy as sa
 from sqlalchemy.orm import relationship
@@ -15,14 +16,15 @@ class StatusChoices(enum.Enum):
 class UserBook(Base):
     __tablename__ = 'user_books'
     id = sa.Column(
-        sa.Integer, primary_key=True, autoincrement=True, index=True
+        sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4,  index=True
     )
     status = sa.Column(sa.Enum(StatusChoices), nullable=True)
     user_id = sa.Column(
-        sa.Integer,
+        sa.Uuid(as_uuid=True),
         sa.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
     )
-    book_id = sa.Column(sa.Integer, sa.ForeignKey('books.id'), nullable=False)
+    book_id = sa.Column(sa.Uuid(as_uuid=True),
+                        sa.ForeignKey('books.id'), nullable=False)
     user = relationship('User')
     book = relationship('Book')
