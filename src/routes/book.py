@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 from src.models.book import Book
 from src.models.db_config import get_session
@@ -53,7 +54,7 @@ def create_book(
     response_model=BookPublic,
     status_code=status.HTTP_200_OK,
 )
-def get_book(book_id: int, session: Session = Depends(get_session)):
+def get_book(book_id: UUID, session: Session = Depends(get_session)):
     book = get_book_or_http_exception(session, book_id)
 
     return book
@@ -63,7 +64,7 @@ def get_book(book_id: int, session: Session = Depends(get_session)):
     path='/delete/{book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
 def delete_book(
-    book_id: int,
+    book_id: UUID,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -78,7 +79,7 @@ def delete_book(
     response_model=BookPublic,
 )
 def update_book(
-    book_id: int,
+    book_id: UUID,
     book: BookSchema,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
@@ -99,7 +100,7 @@ def update_book(
     response_model=BookPublic,
 )
 def partial_update_book(
-    book_id: int,
+    book_id: UUID,
     book: BookPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),

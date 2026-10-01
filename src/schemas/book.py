@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
@@ -10,7 +11,7 @@ class BookSchema(BaseModel):
 
 
 class BookPublic(BaseModel):
-    id: int
+    id: UUID
     title: str
     author: str
     cover_url: str
