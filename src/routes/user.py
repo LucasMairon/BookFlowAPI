@@ -1,4 +1,5 @@
 import os
+from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -95,7 +96,7 @@ def singup(user: UserSchema, session: Session = Depends(get_session)):
 
 @user_router.delete(path='/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
-    user_id: int,
+    user_id: UUID,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -113,7 +114,7 @@ def delete_user(
     response_model=UserPublic,
 )
 def update_user(
-    user_id: int,
+    user_id: UUID,
     user_data: UserSchema,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
@@ -142,7 +143,7 @@ def update_user(
     response_model=UserPublic,
 )
 def partial_update_user(
-    user_id: int,
+    user_id: UUID,
     user_data: UserPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
