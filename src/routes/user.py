@@ -9,12 +9,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
-from src.models.user import User
-from src.schemas.user import (
+from src.models.user import (
+    User,
+    UserCreate,
     UserList,
     UserPartialUpdate,
     UserPublic,
-    UserSchema,
+    UserUpdate,
 )
 from src.utils.security import (
     get_password_hash,
@@ -84,7 +85,7 @@ def list_users(
     response_model=UserPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def singup(user: UserSchema, session: Session = Depends(get_session)):
+def singup(user: UserCreate, session: Session = Depends(get_session)):
     hashed_password = get_password_hash(user.password)
     db_user = User(email=user.email, hashed_password=hashed_password)
     session.add(db_user)
@@ -115,7 +116,7 @@ def delete_user(
 )
 def update_user(
     user_id: UUID,
-    user_data: UserSchema,
+    user_data: UserUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
