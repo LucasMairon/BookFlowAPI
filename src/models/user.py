@@ -1,15 +1,40 @@
 import uuid
 
-import sqlalchemy as sa
+from pydantic import EmailStr
+from sqlmodel import Field, SQLModel
 
-from src.models.db_config import Base
+
+class UserBase(SQLModel):
+    email: EmailStr = Field(index=True, unique=True, nullable=False)
 
 
-class User(Base):
+class UserCreate(UserBase):
+    password: str
+
+
+class UserPartialUpdate(SQLModel):
+    email: EmailStr | None = None
+
+
+class UserUpdate(UserBase):
+    pass
+
+
+class UserRead(UserBase):
+    id: uuid.UUID
+    is_active: bool
+
+
+class UserPublic(UserBase):
+    id: uuid.UUID
+
+
+class UserList(SQLModel):
+    users: list[UserRead]
+
+
+class User(UserBase, table=True):
     __tablename__ = 'users'
-    id = sa.Column(
-        sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
-    )
-    email = sa.Column(sa.String(50), nullable=False, index=True, unique=True)
-    hashed_password = sa.Column(sa.String, nullable=False)
-    is_active = sa.Column(sa.Boolean, default=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    hashed_password: str = Field(nullable=False)
+    is_active: bool = Field(default=True)
