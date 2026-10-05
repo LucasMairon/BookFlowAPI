@@ -1,15 +1,31 @@
 import uuid
-
-import sqlalchemy as sa
-
-from .db_config import Base
+from sqlmodel import Field, SQLModel
 
 
-class Book(Base):
+class BookBase(SQLModel):
+    title: str = Field(nullable=False, index=True)
+    author: str = Field(nullable=False, index=True)
+    cover_url: str = Field(nullable=False)
+
+
+class BookCreate(BookBase):
+    pass
+
+
+class BookPartialUpdate(SQLModel):
+    title: str | None = Field(index=True)
+    author: str | None = Field(index=True)
+    cover_url: str | None = None
+
+
+class BookPublic(BookBase):
+    id: uuid.UUID
+
+
+class BookList(SQLModel):
+    books: list[BookPublic]
+
+
+class Book(BookBase):
     __tablename__ = 'books'
-    id = sa.Column(
-        sa.Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
-    )
-    title = sa.Column(sa.String, nullable=False, index=True)
-    author = sa.Column(sa.String, nullable=False, index=True)
-    cover_url = sa.Column(sa.String, nullable=False)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
