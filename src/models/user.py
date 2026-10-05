@@ -20,17 +20,12 @@ class UserUpdate(UserBase):
     pass
 
 
-class UserRead(UserBase):
-    id: uuid.UUID
-    is_active: bool
-
-
 class UserPublic(UserBase):
     id: uuid.UUID
 
 
 class UserList(SQLModel):
-    users: list[UserRead]
+    users: list[UserPublic]
 
 
 class User(UserBase, table=True):
