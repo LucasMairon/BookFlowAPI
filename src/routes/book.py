@@ -8,12 +8,7 @@ from src.models.book import Book
 from src.models.db_config import get_session
 from src.models.user import User
 from src.routes.user import get_current_user
-from src.schemas.book import (
-    BookList,
-    BookPartialUpdate,
-    BookPublic,
-    BookSchema,
-)
+from src.models.book import BookList, BookPublic, BookCreate, BookPartialUpdate
 from src.utils.book import get_book_or_http_exception
 
 book_router = APIRouter(prefix='/books', tags=['books'])
@@ -39,7 +34,7 @@ def list_books(
     status_code=status.HTTP_201_CREATED,
 )
 def create_book(
-    book: BookSchema,
+    book: BookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -81,7 +76,7 @@ def delete_book(
 )
 def update_book(
     book_id: UUID,
-    book: BookSchema,
+    book: BookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
