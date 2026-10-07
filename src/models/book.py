@@ -26,6 +26,6 @@ class BookList(SQLModel):
     books: list[BookPublic]
 
 
-class Book(BookBase):
+class Book(BookBase, table=True):
     __tablename__ = 'books'
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
