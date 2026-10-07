@@ -8,13 +8,13 @@ from src.models.db_config import get_session
 from src.models.user import User
 from src.models.user_book import UserBook
 from src.routes.user import get_current_user
-from src.schemas.user_book import (
-    UserBookItensPublic,
-    UserBookList,
-    UserBookPartialUpdateSchema,
+from src.models.user_book import (
     UserBookPublic,
-    UserBookSchema,
-    UserBookUpdateSchema,
+    UserBookCreate,
+    UserBookList,
+    UserBookItensPublic,
+    UserBookUpdate,
+    UserBookPartialUpdate,
 )
 from src.utils.book import get_book_or_http_exception
 from src.utils.user import verify_if_is_user_have_permission
@@ -29,7 +29,7 @@ user_book_router = APIRouter(prefix='/user_books', tags=['user_books'])
     status_code=status.HTTP_201_CREATED,
 )
 def create_user_book(
-    user_book: UserBookSchema,
+    user_book: UserBookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -80,7 +80,7 @@ def delete_user_book(
 )
 def update_user_book(
     user_book_id: UUID,
-    user_book_data: UserBookUpdateSchema,
+    user_book_data: UserBookUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
@@ -103,7 +103,7 @@ def update_user_book(
 )
 def partial_update_user_book(
     user_book_id: UUID,
-    user_book_data: UserBookPartialUpdateSchema,
+    user_book_data: UserBookPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
