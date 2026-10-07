@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-DATABSE_URL = 'sqlite:///./db.sqlite3'
+DATABASE_URL = 'sqlite:///./db.sqlite3'
 
-engine = create_engine(DATABSE_URL)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
