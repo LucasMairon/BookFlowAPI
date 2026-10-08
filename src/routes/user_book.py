@@ -6,16 +6,16 @@ from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
 from src.models.user import User
-from src.models.user_book import UserBook
-from src.routes.user import get_current_user
 from src.models.user_book import (
-    UserBookPublic,
+    UserBook,
     UserBookCreate,
-    UserBookList,
     UserBookItensPublic,
-    UserBookUpdate,
+    UserBookList,
     UserBookPartialUpdate,
+    UserBookPublic,
+    UserBookUpdate,
 )
+from src.routes.user import get_current_user
 from src.utils.book import get_book_or_http_exception
 from src.utils.user import verify_if_is_user_have_permission
 from src.utils.user_book import get_user_book_or_http_404

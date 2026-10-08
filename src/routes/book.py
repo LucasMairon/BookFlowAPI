@@ -4,11 +4,16 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from src.models.book import Book
+from src.models.book import (
+    Book,
+    BookCreate,
+    BookList,
+    BookPartialUpdate,
+    BookPublic,
+)
 from src.models.db_config import get_session
 from src.models.user import User
 from src.routes.user import get_current_user
-from src.models.book import BookList, BookPublic, BookCreate, BookPartialUpdate
 from src.utils.book import get_book_or_http_exception
 
 book_router = APIRouter(prefix='/books', tags=['books'])

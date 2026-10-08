@@ -1,11 +1,10 @@
 import enum
 import uuid
 
-from sqlmodel import SQLModel, Field, Relationship
-from src.models.book import Book
-from src.models.user import UserPublic
-from src.models.book import BookPublic
-from src.models.user import User
+from sqlmodel import Field, Relationship, SQLModel
+
+from src.models.book import Book, BookPublic
+from src.models.user import User, UserPublic
 
 
 class StatusChoices(enum.Enum):
@@ -50,9 +49,9 @@ class UserBook(UserBookBase, table=True):
     __tablename__ = 'user_books'
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(
-        nullable=False, foreign_key='users.id', ondelete='CASCADE')
-    book_id: uuid.UUID = Field(
-        nullable=False, foreign_key='books.id')
+        nullable=False, foreign_key='users.id', ondelete='CASCADE'
+    )
+    book_id: uuid.UUID = Field(nullable=False, foreign_key='books.id')
 
     book: Book = Relationship()
     user: User = Relationship()
