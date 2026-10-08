@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
 from src.models.user import User
-from src.schemas.token import Token
+from src.models.token import Token
 from src.utils.security import create_acess_token, verify_password
 
 token_router = APIRouter(prefix='/token', tags=['token'])
