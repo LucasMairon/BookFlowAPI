@@ -14,8 +14,6 @@ async_session_maker = sessionmaker(
     bind=engine,
 )
 
-Base = declarative_base()
-
 
 async def get_session():
     async with async_session_maker() as session:
