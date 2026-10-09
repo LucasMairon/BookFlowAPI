@@ -12,11 +12,11 @@ token_router = APIRouter(prefix='/token', tags=['token'])
 
 
 @token_router.post('/', response_model=Token, status_code=status.HTTP_200_OK)
-def login_for_acess_token(
+async def login_for_acess_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
-    user = session.scalar(select(User).where(User.email == form_data.username))
+    user = await session.scalar(select(User).where(User.email == form_data.username))
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

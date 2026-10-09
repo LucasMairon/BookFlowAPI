@@ -24,10 +24,10 @@ book_router = APIRouter(prefix='/books', tags=['books'])
     status_code=status.HTTP_200_OK,
     response_model=BookList,
 )
-def list_books(
+async def list_books(
     session: Session = Depends(get_session), offset: int = 0, limit: int = 30
 ):
-    query = session.scalars(select(Book).offset(offset).limit(limit))
+    query = await session.scalars(select(Book).offset(offset).limit(limit))
     books = query.all()
 
     return {'books': books}
@@ -38,15 +38,15 @@ def list_books(
     response_model=BookPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def create_book(
+async def create_book(
     book: BookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
     book = Book(**book.model_dump())
-    session.add(book)
-    session.commit()
-    session.refresh(book)
+    await session.add(book)
+    await session.commit()
+    await session.refresh(book)
     return book
 
 
@@ -55,8 +55,8 @@ def create_book(
     response_model=BookPublic,
     status_code=status.HTTP_200_OK,
 )
-def get_book(book_id: UUID, session: Session = Depends(get_session)):
-    book = get_book_or_http_exception(session, book_id)
+async def get_book(book_id: UUID, session: Session = Depends(get_session)):
+    book = await get_book_or_http_exception(session, book_id)
 
     return book
 
@@ -64,14 +64,14 @@ def get_book(book_id: UUID, session: Session = Depends(get_session)):
 @book_router.delete(
     path='/delete/{book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
-def delete_book(
+async def delete_book(
     book_id: UUID,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    book = get_book_or_http_exception(session, book_id)
-    session.delete(book)
-    session.commit()
+    book = await get_book_or_http_exception(session, book_id)
+    await session.delete(book)
+    await session.commit()
 
 
 @book_router.put(
@@ -79,18 +79,18 @@ def delete_book(
     status_code=status.HTTP_200_OK,
     response_model=BookPublic,
 )
-def update_book(
+async def update_book(
     book_id: UUID,
     book: BookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_book = get_book_or_http_exception(session, book_id)
+    db_book = await get_book_or_http_exception(session, book_id)
 
     for field, value in book.model_dump().items():
         setattr(db_book, field, value)
-        session.commit()
-        session.refresh(db_book)
+    await session.commit()
+    await session.refresh(db_book)
 
     return db_book
 
@@ -100,13 +100,13 @@ def update_book(
     status_code=status.HTTP_201_CREATED,
     response_model=BookPublic,
 )
-def partial_update_book(
+async def partial_update_book(
     book_id: UUID,
     book: BookPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_book = get_book_or_http_exception(session, book_id)
+    db_book = await get_book_or_http_exception(session, book_id)
 
     updated_data = {
         key: value
@@ -114,7 +114,7 @@ def partial_update_book(
     }
     for field, value in updated_data.items():
         setattr(db_book, field, value)
-    session.commit()
-    session.refresh(db_book)
+    await session.commit()
+    await session.refresh(db_book)
 
     return db_book

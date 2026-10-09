@@ -38,7 +38,7 @@ user_router = APIRouter(prefix='/users', tags=['users'])
     response_model=UserPublic,
     status_code=status.HTTP_200_OK,
 )
-def get_current_user(
+async def get_current_user(
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_scheme),
 ):
@@ -57,7 +57,7 @@ def get_current_user(
     except DecodeError:
         raise credentials_exception
 
-    user = session.scalar(select(User).where(User.email == subject_email))
+    user = await session.scalar(select(User).where(User.email == subject_email))
 
     if not user:
         raise credentials_exception
@@ -68,13 +68,13 @@ def get_current_user(
 @user_router.get(
     path='/', response_model=UserList, status_code=status.HTTP_200_OK
 )
-def list_users(
+async def list_users(
     session: Session = Depends(get_session),
     offset: int = 0,
     limit: int = 20,
     user: User = Depends(get_current_user),
 ):
-    query = session.scalars(select(User).offset(offset).limit(limit))
+    query = await session.scalars(select(User).offset(offset).limit(limit))
     users = query.all()
 
     return {'users': users}
@@ -85,18 +85,18 @@ def list_users(
     response_model=UserPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def singup(user: UserCreate, session: Session = Depends(get_session)):
+async def singup(user: UserCreate, session: Session = Depends(get_session)):
     hashed_password = get_password_hash(user.password)
     db_user = User(email=user.email, hashed_password=hashed_password)
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    await session.add(db_user)
+    await session.commit()
+    await session.refresh(db_user)
 
     return db_user
 
 
 @user_router.delete(path='/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(
+async def delete_user(
     user_id: UUID,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
@@ -105,8 +105,8 @@ def delete_user(
     verify_if_is_user_have_permission(user_id, user.id)
     verify_if_user_exist(db_user)
 
-    session.delete(db_user)
-    session.commit()
+    await session.delete(db_user)
+    await session.commit()
 
 
 @user_router.put(
@@ -114,13 +114,13 @@ def delete_user(
     status_code=status.HTTP_200_OK,
     response_model=UserPublic,
 )
-def update_user(
+async def update_user(
     user_id: UUID,
     user_data: UserUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user = session.get(User, user_id)
+    db_user = await session.get(User, user_id)
     verify_if_is_user_have_permission(user_id, user.id)
     verify_if_user_exist(db_user)
 
@@ -132,8 +132,8 @@ def update_user(
     for field, value in data_to_update.items():
         setattr(db_user, field, value)
 
-    session.commit()
-    session.refresh(db_user)
+    await session.commit()
+    await session.refresh(db_user)
 
     return db_user
 
@@ -143,13 +143,13 @@ def update_user(
     status_code=status.HTTP_200_OK,
     response_model=UserPublic,
 )
-def partial_update_user(
+async def partial_update_user(
     user_id: UUID,
     user_data: UserPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user = session.get(User, user_id)
+    db_user = await session.get(User, user_id)
     verify_if_is_user_have_permission(user_id, user.id)
     verify_if_user_exist(db_user)
 
@@ -164,7 +164,7 @@ def partial_update_user(
     for field, value in updated_data.items():
         setattr(db_user, field, value)
 
-    session.commit()
-    session.refresh(db_user)
+    await session.commit()
+    await session.refresh(db_user)
 
     return db_user

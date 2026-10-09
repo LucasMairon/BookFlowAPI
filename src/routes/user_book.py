@@ -28,19 +28,19 @@ user_book_router = APIRouter(prefix='/user_books', tags=['user_books'])
     response_model=UserBookPublic,
     status_code=status.HTTP_201_CREATED,
 )
-def create_user_book(
+async def create_user_book(
     user_book: UserBookCreate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
 
     verify_if_is_user_have_permission(user.id, user_book.user_id)
-    get_book_or_http_exception(session, user_book.book_id)
+    await get_book_or_http_exception(session, user_book.book_id)
 
     user_book = UserBook(**user_book.model_dump())
-    session.add(user_book)
-    session.commit()
-    session.refresh(user_book)
+    await session.add(user_book)
+    await session.commit()
+    await session.refresh(user_book)
 
     return user_book
 
@@ -48,11 +48,11 @@ def create_user_book(
 @user_book_router.get(
     path='/', response_model=UserBookList, status_code=status.HTTP_200_OK
 )
-def get_user_books_by_logged_user(
+async def get_user_books_by_logged_user(
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user_books = session.scalars(
+    db_user_books = await session.scalars(
         select(UserBook).where(UserBook.user_id == user.id)
     ).all()
     return {'user_books': db_user_books}
@@ -61,16 +61,16 @@ def get_user_books_by_logged_user(
 @user_book_router.delete(
     path='/{user_book_id}', status_code=status.HTTP_204_NO_CONTENT
 )
-def delete_user_book(
+async def delete_user_book(
     user_book_id: UUID,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user_book = get_user_book_or_http_404(session, user_book_id)
+    db_user_book = await get_user_book_or_http_404(session, user_book_id)
     verify_if_is_user_have_permission(db_user_book.user_id, user.id)
 
-    session.delete(db_user_book)
-    session.commit()
+    await session.delete(db_user_book)
+    await session.commit()
 
 
 @user_book_router.put(
@@ -78,20 +78,20 @@ def delete_user_book(
     response_model=UserBookItensPublic,
     status_code=status.HTTP_200_OK,
 )
-def update_user_book(
+async def update_user_book(
     user_book_id: UUID,
     user_book_data: UserBookUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user_book = get_user_book_or_http_404(session, user_book_id)
+    db_user_book = await get_user_book_or_http_404(session, user_book_id)
     verify_if_is_user_have_permission(db_user_book.user_id, user.id)
 
     for field, value in user_book_data.model_dump().items():
         setattr(db_user_book, field, value)
 
-    session.commit()
-    session.refresh(db_user_book)
+    await session.commit()
+    await session.refresh(db_user_book)
 
     return db_user_book
 
@@ -101,13 +101,13 @@ def update_user_book(
     response_model=UserBookItensPublic,
     status_code=status.HTTP_200_OK,
 )
-def partial_update_user_book(
+async def partial_update_user_book(
     user_book_id: UUID,
     user_book_data: UserBookPartialUpdate,
     session: Session = Depends(get_session),
     user: User = Depends(get_current_user),
 ):
-    db_user_book = get_user_book_or_http_404(session, user_book_id)
+    db_user_book = await get_user_book_or_http_404(session, user_book_id)
     verify_if_is_user_have_permission(db_user_book.user_id, user.id)
 
     updated_data = {
@@ -117,7 +117,7 @@ def partial_update_user_book(
 
     for field, value in updated_data.items():
         setattr(db_user_book, field, value)
-    session.commit()
-    session.refresh(db_user_book)
+    await session.commit()
+    await session.refresh(db_user_book)
 
     return db_user_book
