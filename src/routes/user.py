@@ -34,7 +34,7 @@ user_router = APIRouter(prefix='/users', tags=['users'])
 
 
 @user_router.get(
-    path='{user_id}/',
+    path='/{user_id}',
     response_model=UserPublic,
     status_code=status.HTTP_200_OK,
 )
