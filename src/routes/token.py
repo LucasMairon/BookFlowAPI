@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from src.models.db_config import get_session
-from src.models.user import User
 from src.models.token import Token
+from src.models.user import User
 from src.utils.security import create_acess_token, verify_password
 
 token_router = APIRouter(prefix='/token', tags=['token'])
@@ -16,7 +16,9 @@ async def login_for_acess_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ):
-    user = await session.scalar(select(User).where(User.email == form_data.username))
+    user = await session.scalar(
+        select(User).where(User.email == form_data.username)
+    )
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
